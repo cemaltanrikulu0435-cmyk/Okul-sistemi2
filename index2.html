@@ -1,0 +1,37 @@
+window.saveGrades = function() {
+        const lesson = document.getElementById('t-lesson').value;
+        const term = document.getElementById('t-term').value;
+        const type = document.getElementById('t-type').value;
+
+        if(!lesson || !term || !type) return alert("Ders, Dönem ve İşlem seçin!");
+
+        const rows = document.querySelectorAll('#teacher-student-list .student-row');
+        let kayit = 0;
+
+        rows.forEach(row => {
+            const no = row.getAttribute('data-no');
+            const gradeVal = row.querySelector('.grade-input').value.trim();
+
+            if(gradeVal !== '') {
+                // ÇÖZÜM: 'push' yerine 'set' kullanıyoruz.
+                // Key olarak (ders + donem + islem) birleşimini atıyoruz.
+                // Böylece aynı seçimde 2. kez kaydettiğinde üzerine yazar (günceller).
+                const uniqueKey = `${lesson}_${term}_${type}`.replace(/ /g, '_');
+                
+                set(ref(db, `ogrenciler/${no}/notlar/${uniqueKey}`), {
+                    ders: lesson,
+                    donem: term,
+                    islem: type,
+                    not: gradeVal
+                });
+                kayit++;
+            }
+        });
+
+        if(kayit > 0) {
+            alert(`${kayit} öğrencinin notu güncellendi!`);
+            window.show('main-menu');
+        } else {
+            alert("Not girmediniz.");
+        }
+    };
